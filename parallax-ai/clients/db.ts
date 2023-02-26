@@ -30,6 +30,21 @@ export const getJobRecordByState = async (jobState: JobState) => {
     return await (await dynamoDb.query(params).promise()).Items as JobRecord[];
 };
 
+//function to fetch record from dynamo db using JobRecord interface by email
+export const getJobRecordByEmail = async (email: string) => {
+    const params = {
+        TableName: 'parallax-ai-jobs',
+        IndexName: 'email-index',
+        KeyConditionExpression: 'email = :email',
+        ExpressionAttributeValues: {
+            ':email': email,
+        },
+    };
+
+    return await (await dynamoDb.query(params).promise()).Items as JobRecord[];
+};
+
+
 //function to partially update record in dynamo db
 export const updateJobRecord = async (item: JobRecord) => {
     const params = {
@@ -37,11 +52,13 @@ export const updateJobRecord = async (item: JobRecord) => {
         Key: {
             id: item.id,
         },
-        UpdateExpression: 'set jobState = :jobState, modelId = :modelId, modelUrl = :modelUrl',
+        UpdateExpression: 'set jobState = :jobState, modelId = :modelId, modelUrl = :modelUrl, outputIds = :outputIds, outputUrls = :outputUrls',
         ExpressionAttributeValues: {
             ':jobState': item.jobState ?? null,
             ':modelId': item.modelId ?? null,
             ':modelUrl': item.modelUrl ?? null,
+            ':outputIds': item.outputIds ?? null,
+            ':outputUrls': item.outputUrls ?? null,
         },
         ReturnValues: 'UPDATED_NEW',
     };
@@ -57,7 +74,8 @@ export interface JobRecord {
     jobState: JobState;
     modelId: string | null;
     modelUrl: string | null;
-    outputUrl: string | null;
+    outputIds: string[] | null;
+    outputUrls: string[] | null;
   }
   
   export enum JobState {

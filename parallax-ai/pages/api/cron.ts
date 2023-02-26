@@ -1,8 +1,8 @@
 //cron api to fetch data from dynamo db send api request and send email
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getJobRecordByState, JobState, updateJobRecord } from './db';
-import { checkModelCreation, createKazakhStyledInference, createModel } from './replicateClient';
+import { getJobRecordByState, JobState, updateJobRecord } from '../../clients/db';
+import { checkModelCreation, createKazakhStyledInference, createModel } from '../../clients/replicateClient';
 
 
 export default async (_: NextApiRequest, res: NextApiResponse) => {
@@ -24,16 +24,46 @@ export default async (_: NextApiRequest, res: NextApiResponse) => {
             job.modelUrl = modelUrl.output;
             await updateJobRecord(job);
         }
-
     }
+
     const modelCreatedJob = await getJobRecordByState(JobState.MODEL_CREATED);
     for (const job of modelCreatedJob) {
-        const response = await createKazakhStyledInference(job.modelUrl);
-        if (response) {
-            console.log(response)
+        const inferenceIds = await Promise.all([
+            createKazakhStyledInference(job.modelUrl),
+            createKazakhStyledInference(job.modelUrl),
+            createKazakhStyledInference(job.modelUrl),
+            createKazakhStyledInference(job.modelUrl),
+          ]);
+        for (const id of inferenceIds) {
+            if (id) {
+                job.outputIds = [...(job.outputIds ?? []), id];
+            }
+        }
+        job.jobState = JobState.INFERENCING;
+        await updateJobRecord(job);
+    }
+
+    const inferencingJobs = await getJobRecordByState(JobState.INFERENCING);
+    let finalized = true;
+    for (const job of inferencingJobs) {
+        if (job.outputIds) {
+            const inferences = await Promise.all(job.outputIds.map((id) => checkModelCreation(id)));
+            for (const inference of inferences) {
+                if (inference.output) {
+                    job.outputUrls = [...(job.outputUrls ?? []), ...inference.output];
+                }
+                if (inference && inference.status !== 'succeeded') {
+                    finalized = false;
+                }
+            }
+        }
+        if (finalized){
+            job.jobState = JobState.COMPLETED;
+            await updateJobRecord(job);
         }
     }
-    res.status(200).json({ pendingJobs, modelCreationJobs, modelCreatedJob, message: 'Cron job ran successfully' });
+
+    res.status(200).json({ pendingJobs, modelCreationJobs, modelCreatedJob, inferencingJobs, message: 'Cron job ran successfully' });
 };
 
 

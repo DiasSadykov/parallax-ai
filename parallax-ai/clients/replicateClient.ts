@@ -2,7 +2,8 @@
 
 const MODEL_URL_BASE ="https://api.replicate.com/v1/predictions"
 const KAZAKH_STYLE_LORA = "https://replicate.delivery/pbxt/E1nA6mK2dJ6TC12fPuF3DypSvUXAvpZl03XSoJCTZbJeyFhQA/tmp4dxcmo_rkazakh40gmailcomzip.safetensors";
-
+const ANIME_CHARACTER_PROMPT = "portrait photo of <1> in style of <2> as anime character,   detailed faces, highres, RAW photo 8k uhd, dslr"
+const ANIME_CHARACTER_PROMPT_2 = "portrait photo of <1> as anime character, hayao miyazaki style, detailed faces, highres, RAW photo 8k uhd, dslr"
 const postApiRequest = async (url: string, body: any) => {
     const response = await fetch(url, {
         method: 'POST',
@@ -47,9 +48,9 @@ export const checkModelCreation = async (id: string | null) => {
     return response
 };
 
-export const createKazakhStyledInference = async (modelUrl: string | null) => {
+export const createKazakhStyledInference = async (modelUrl: string | null): Promise<string | null>=> {
     if (!modelUrl) {
-        return undefined;
+        return null;
     }
     const body = {
         version: "300e401c9899d0ae0312a567a04455e2a8ffd10587e4c583d9ac0f650a7d2f9f",
@@ -66,6 +67,6 @@ export const createKazakhStyledInference = async (modelUrl: string | null) => {
             width: 512,
         }
     };
-    const response = await postApiRequest(MODEL_URL_BASE, body).then((response) => {return response}).catch((error) => {console.log(error); return undefined})
+    const response = await postApiRequest(MODEL_URL_BASE, body).then((response) => {return response.id}).catch((error) => {console.log(error); return null})
     return response
 };
