@@ -1,0 +1,13 @@
+name: Job Processor Cron
+
+on:
+  schedule:
+    - cron: '* * * * *'
+jobs:
+  build:
+    name: Job Processor
+    runs-on: ubuntu-latest
+    steps:
+      - name: cURL request
+        # Hit the webhook endpoint to rebuild  from the "main" branch
+        run: curl -X POST -d {} https://www.parallaxai.app/api/cron
