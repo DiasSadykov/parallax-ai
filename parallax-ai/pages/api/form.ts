@@ -43,6 +43,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
   const data = await createJobRecord({id: id, timestamp: TS_NOW, email: email, jobState: JobState.PENDING, trainingDataUrl: trainingDataUrl, modelId: null, modelUrl: null, outputIds: null, outputUrls: null});
 
-  return res.redirect('/dashboard')
+  return res.redirect(302, '/dashboard')
 }
 
