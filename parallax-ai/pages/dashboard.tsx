@@ -51,8 +51,7 @@ export default function Dashboard() {
             </div> :
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {job.outputUrls?.map((url) => (
-                  <img className="rounded-xl" src={url} />
-
+                  <img key={url} className="rounded-xl" src={url} />
             ))}
             </div>
           }

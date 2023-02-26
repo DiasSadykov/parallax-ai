@@ -35,3 +35,4 @@ export const uploadToS3 = async (email: string, paths: string[]) => {
     console.log('uploaded to s3', location)
     return location
   };
+

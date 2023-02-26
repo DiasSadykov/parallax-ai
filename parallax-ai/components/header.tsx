@@ -1,4 +1,5 @@
 import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 
 export default function Header() {
@@ -8,7 +9,7 @@ export default function Header() {
     <div className="navbar  bg-base-300 text-primary-content">
         <div className="flex-1">
           {router.pathname === "/dashboard" ?<label htmlFor="my-drawer-2" className="drawer-button text-xl lg:hidden pl-3">≡</label> : null}
-          <a className="btn btn-ghost normal-case text-xl" href="/">🇺🇦 Parallax AI</a>
+          <Link className="btn btn-ghost normal-case text-xl" href="/">🇺🇦 Parallax AI</Link>
         </div>
       {status === "authenticated" ?
         <div className="flex-none">
@@ -27,10 +28,10 @@ export default function Header() {
           </label>
           <ul tabIndex={0} className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
             <li>
-              <a href="/dashboard" className="justify-between">
+              <Link href="/dashboard" className="justify-between">
                 Dashboard
                 <span className="badge">New</span>
-              </a>
+              </Link>
             </li>
             <li><a onClick={() => signOut()}>Logout</a></li>
           </ul>
