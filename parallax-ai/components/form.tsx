@@ -17,10 +17,10 @@ export default function Form() {
               </label>
               <input required name="photos" type="file" multiple className="file-input file-input-bordered file-input-lg w-full max-w-md" />
               <br/>
-                <button type="submit" className="btn btn-primary border-lime-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars (5$)</button>
+                <button type="submit" className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars (5$)</button>
           </form> : 
           <>
-          <button className="btn btn-primary border-lime-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" onClick={() => signIn("google")}>Get Started</button>
+          <button className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" onClick={() => signIn("google")}>Get Started</button>
           </>
         }
       </div>
