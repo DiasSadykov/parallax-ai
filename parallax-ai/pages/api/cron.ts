@@ -1,8 +1,9 @@
 //cron api to fetch data from dynamo db send api request and send email
 
+import { uploadToS3FromUrls } from '@/clients/s3';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getJobRecordByState, JobState, updateJobRecord } from '../../clients/db';
-import { checkModelCreation, createKazakhStyledInference, createModel } from '../../clients/replicateClient';
+import { checkModelCreation, checkOutput, createKazakhStyledInference, createModel } from '../../clients/replicateClient';
 
 
 export default async (_: NextApiRequest, res: NextApiResponse) => {
@@ -44,25 +45,30 @@ export default async (_: NextApiRequest, res: NextApiResponse) => {
     }
 
     const inferencingJobs = await getJobRecordByState(JobState.INFERENCING);
-    let finalized = true;
+
     for (const job of inferencingJobs) {
         if (job.outputIds) {
-            const inferences = await Promise.all(job.outputIds.map((id) => checkModelCreation(id)));
-            for (const inference of inferences) {
-                if (inference.output) {
-                    job.outputUrls = [...(job.outputUrls ?? []), ...inference.output];
+            const newOutputIds = [];
+            const idOutputs = await Promise.all(job.outputIds.map((id) => checkOutput(id)));
+            for (const idOutput of idOutputs) {
+                const [id, urls] = idOutput;
+                if (!id) {
+                    continue;
                 }
-                if (inference && inference.status !== 'succeeded') {
-                    finalized = false;
+                if (urls) {
+                    job.outputUrls = [...(job.outputUrls ?? []), ...(await uploadToS3FromUrls((job.email + '/' +job.id), urls))];
+                }
+                if (!urls) {
+                    newOutputIds.push(id);
                 }
             }
-        }
-        if (finalized){
-            job.jobState = JobState.COMPLETED;
+            job.outputIds = newOutputIds;
+            if (job.outputIds.length === 0) {
+                job.jobState = JobState.COMPLETED;
+            }
             await updateJobRecord(job);
         }
     }
-
     res.status(200).json({ pendingJobs, modelCreationJobs, modelCreatedJob, inferencingJobs, message: 'Cron job ran successfully' });
 };
 

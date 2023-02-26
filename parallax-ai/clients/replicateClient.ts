@@ -36,16 +36,25 @@ export const createModel = async (trainingDataUrl: string) => {
             task: "face",
         }
       };
-      return await postApiRequest(url, body).then((response) => {return response.id}).catch((error) => {console.log(error); return undefined});
+      return await postApiRequest(url, body).then((response) => {return response.id}).catch((error) => {console.log(error); return null});
 };
 
-export const checkModelCreation = async (id: string | null) => {
+export const checkModelCreation = async (id: string | null): Promise<any | null> => {
     if (!id) {
-        return undefined;
+        return null;
     }
     const modelCreationUrl = MODEL_URL_BASE + "/" + id;
-    const response = await getApiRequest(modelCreationUrl).then((response) => {return response}).catch((error) => {console.log(error); return undefined})
+    const response = await getApiRequest(modelCreationUrl).then((response) => {return response}).catch((error) => {console.log(error); return null})
     return response
+};
+
+export const checkOutput = async (id: string | null): Promise<[string | null, string[]| null]> => {
+    if (!id) {
+        return [null, null];
+    }
+    const modelCreationUrl = MODEL_URL_BASE + "/" + id;
+    const output = await getApiRequest(modelCreationUrl).then((response) => {return response.output}).catch((error) => {console.log(error); return [id, null]})
+    return [id, output]
 };
 
 export const createKazakhStyledInference = async (modelUrl: string | null): Promise<string | null>=> {
