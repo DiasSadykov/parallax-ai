@@ -15,9 +15,9 @@ export default function Form() {
               <label className="label">
                   <span className="label-text">Choose your photos (look for recommendations in FAQ):</span>
               </label>
-              <input required name="photos" type="file" multiple className="file-input file-input-bordered file-input-lg w-full max-w-md" />
+              <input accept='image/*' required name="photos" type="file" multiple className="file-input file-input-bordered file-input-lg w-full max-w-md"/>
               <br/>
-                <button type="submit" className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars (5$)</button>
+                <button type="submit" className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars [FREE FOR BETA TESTERS]</button>
           </form> : 
           <>
           <button className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" onClick={() => signIn("google")}>Get Started</button>
