@@ -1,9 +1,10 @@
 import { JobRecord, JobState } from '@/clients/db';
 import Footer from '@/components/footer'
 import Header from '@/components/header'
+import Lottie from 'lottie-react';
 import { useEffect, useState } from 'react';
 import useSWR, { Fetcher } from 'swr'
-
+import animationData from '../public/loading.json'
 
 const fetcher: Fetcher<{userJobs: JobRecord[]}, string> = url => fetch(url).then(res => res.json())
 
@@ -48,7 +49,10 @@ export default function Dashboard() {
                 <li className={"step"+([JobState.COMPLETED, JobState.INFERENCING].indexOf(job?.jobState)!=-1 ? " step-primary": "") }><b>Creating Avatars</b></li>
                 <li className={"step"+([JobState.COMPLETED].indexOf(job?.jobState)!=-1 ? " step-primary": "") }><b>Finalizing</b></li>
               </ul>
-              
+              <Lottie 
+                animationData={animationData}
+                width={100}
+              />
             </div> :
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {job.outputUrls?.map((url) => (

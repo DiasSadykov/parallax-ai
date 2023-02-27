@@ -1,7 +1,80 @@
+import AWS from 'aws-sdk';
+import JSZip from 'jszip';
+import Lottie from 'lottie-react';
 import { signIn, useSession } from 'next-auth/react';
+import { ChangeEventHandler, useState } from 'react';
+import { v4 } from 'uuid';
+import { useRouter } from 'next/router'
+import animationData from '../public/done.json'
+
+AWS.config.update({
+  region: process.env.NEXT_PUBLIC_AWS_REGION,
+  credentials: new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: 'eu-central-1:c3c79653-2848-4d89-9f6c-59f7f766b85c'
+  })
+});
+
+const s3 = new AWS.S3({
+  params: { Bucket: 'parallax-ai' }
+});
+
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png'];
 
 export default function Form() {
   const { data: session, status } = useSession();
+  const [progress, setProgress] = useState(0);
+  const [trainingDataUrl, setTrainingDataUrl] = useState(null as string | null);
+  const router = useRouter();
+
+  const onSubmit = async () => {
+    const response = await fetch('/api/form', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ trainingDataUrl }),
+    });
+    await response.json().then(() => {
+      router.push('/dashboard')
+    }).catch((err) => {
+      console.log(err)
+    });
+  }
+  const handleChange: ChangeEventHandler<HTMLInputElement> = async (event) => {
+    const files = event.target.files
+    if (!files) return;
+    var zip = new JSZip();
+    for (const file of Array.from(files)) {
+      const extension = file.name.split('.').pop();
+      if(!extension || !ALLOWED_EXTENSIONS.includes(extension.toLowerCase())){
+        alert('File type not supported, please upload only images in jpg, jpeg or png format.');
+        return;
+      }
+      zip.file(v4()+'.'+extension, file);
+    }
+    zip.generateAsync({type:"blob"})
+    .then(async function(content) {
+      const params = {
+        Bucket: 'parallax-ai',
+        Key: session?.user?.email+'.zip',
+        Body: content,
+        ContentType: 'application/zip',
+      };
+    
+      const request = s3.upload(params);
+      request.on('httpUploadProgress', function (evt) {
+        setProgress(Math.round((evt.loaded / evt.total) * 100));
+      }
+      );
+      await request.promise().then((data) => {
+        setTrainingDataUrl(data.Location);
+        return data.Location;
+      }
+      );
+    });
+  } 
+
 
   return (
       <div className=" flex-col ">
@@ -10,14 +83,28 @@ export default function Form() {
           <p className="py-6">Create your own unique avatar with our AI Avatar Making App in oriental style. Choose from a wide range of customizable features inspired by Chinese, Japanese, and Korean cultures. No artistic skills required! Join millions of users and start expressing yourself with an avatar that truly represents you.</p>
         </div>
         {status === "authenticated" ? 
-          <form action="/api/form" encType="multipart/form-data" method="POST" className="w-full flex-col">
-
+          progress > 0 ? progress == 100 ? <>
+            <div className='w-full flex flex-row'>
+            <div className='w-24'>
+              <Lottie 
+                animationData={animationData}
+                loop={false}
+                width={100}
+              />
+            </div>
+            <p className="text-md font-semibold self-center">Photos Uploaded</p>
+          </div>
+          <button onClick={onSubmit} className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars [FREE FOR BETA TESTERS]</button>
+          </>
+          :<progress className="progress progress-primary w-56" value={progress} max="100"></progress> :
+      
+          <form encType="multipart/form-data" className="w-full flex-col">
               <label className="label">
                   <span className="label-text">Choose your photos (look for recommendations in FAQ):</span>
               </label>
-              <input accept='image/*' required name="photos" type="file" multiple className="file-input file-input-bordered file-input-lg w-full max-w-md"/>
+              <input onChange={handleChange} accept='image/*' required name="photos" type="file" multiple className="file-input file-input-bordered file-input-lg w-full max-w-md"/>
               <br/>
-                <button type="submit" className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars [FREE FOR BETA TESTERS]</button>
+              <button type="submit" className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars [FREE FOR BETA TESTERS]</button>
           </form> : 
           <>
           <button className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" onClick={() => signIn("google")}>Get Started</button>

@@ -48,8 +48,8 @@ export const uploadToS3FromUrls = async (basePath: string, urls: string[]): Prom
           Key: basePath + '/' +  randomUUID() + '.jpg',
           Body: pass,
       }).promise().then((data) => {return data.Location}).catch((err) => {console.log(err); return null});
-      console.log(imageUrl)
       return imageUrl;
     };
     return (await Promise.all(urls.map(uploadToS3))).filter((url) => url != null) as string[];
-  }
+}
+

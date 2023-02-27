@@ -15,6 +15,5 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(401).json({ message: 'Email fetching error' });
   }
   const userJobs = await getJobRecordByEmail(email)
-  return res.status(200).json({ userJobs: userJobs });
+  return res.status(200).json({ userJobs: userJobs.sort((a, b) => b.timestamp - a.timestamp) });
 }
-
