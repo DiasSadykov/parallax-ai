@@ -41,13 +41,21 @@ export default function Form() {
       console.log(err)
     });
   }
+
   const handleChange: ChangeEventHandler<HTMLInputElement> = async (event) => {
     const files = event.target.files
-    if (!files) return;
+    if (!files || files.length === 0) return;
+    if (files.length < 5) {
+      event.target.value = "";
+      alert('Please upload at least 5 images, 10 preferred.');  
+      return;
+    } 
+
     var zip = new JSZip();
     for (const file of Array.from(files)) {
       const extension = file.name.split('.').pop();
       if(!extension || !ALLOWED_EXTENSIONS.includes(extension.toLowerCase())){
+        event.target.value = "";
         alert('File type not supported, please upload only images in jpg, jpeg or png format.');
         return;
       }
