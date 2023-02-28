@@ -1,10 +1,5 @@
 const KAZAKH_STYLE_LORA_TENSOR = "https://parallax-ai-lora-tensors.s3.eu-central-1.amazonaws.com/tmp4dxcmo_rkazakh40gmailcomzip.safetensors";
 
-
-const KAZAKH_STYLE_REALISTIC_PROMPT = "portrait photo of <1> in style of <2>, Wes Anderson movie, yurt on a background, detailed faces, highres, RAW photo 8k uhd, dslr"
-const KAZAKH_ANIME_CHARACTER_PROMPT = "portrait photo of <1> in style of <2> as anime character, detailed faces, highres, RAW photo 8k uhd, dslr"
-const ANIME_CHARACTER_PROMPT = "portrait photo of <1> as anime character, hayao miyazaki style, detailed faces, highres, RAW photo 8k uhd, dslr"
-
 export const INFERENCES_REQUESTS = [
     {
         prompt: "portrait photo of <1> in style of <2>, Wes Anderson movie, yurt on a background, detailed faces, highres, RAW photo 8k uhd, dslr",
