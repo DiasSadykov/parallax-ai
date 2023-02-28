@@ -25,7 +25,7 @@ const mapStateToString = (state: JobState) => {
   }
 }
 export default function Dashboard() {
-  const { data, error, isLoading } = useSWR('/api/getUserJobs', fetcher, { refreshInterval: 10000 });
+  const { data, error, isLoading } = useSWR('/api/get-user-jobs', fetcher, { refreshInterval: 10000 });
   const [job, selectJob] = useState(undefined as JobRecord | undefined);
   useEffect(()=>{
     selectJob(data?.userJobs?.[0])

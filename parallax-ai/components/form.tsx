@@ -2,9 +2,9 @@ import AWS from 'aws-sdk';
 import JSZip from 'jszip';
 import Lottie from 'lottie-react';
 import { signIn, useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { ChangeEventHandler, useState } from 'react';
 import { v4 } from 'uuid';
-import { useRouter } from 'next/router'
 import animationData from '../public/done.json'
 
 AWS.config.update({
@@ -24,19 +24,18 @@ export default function Form() {
   const { data: session, status } = useSession();
   const [progress, setProgress] = useState(0);
   const [trainingDataUrl, setTrainingDataUrl] = useState(null as string | null);
-  const router = useRouter();
 
   const onSubmit = async () => {
-    const response = await fetch('/api/form', {
+    const response = await fetch('/api/checkout-session', {
       method: 'POST',
+      redirect: 'follow',
       headers: {
-        'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ trainingDataUrl }),
     });
-    await response.json().then(() => {
-      router.push('/dashboard')
+    await response.json().then((response) => {
+      window.location.href = response.url
     }).catch((err) => {
       console.log(err)
     });
@@ -112,7 +111,8 @@ export default function Form() {
               </label>
               <input onChange={handleChange} accept='image/*' required name="photos" type="file" multiple className="file-input file-input-bordered file-input-lg w-full max-w-md"/>
               <br/>
-              <button type="submit" className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars [FREE FOR BETA TESTERS]</button>
+              <p className='text-xs'>By continuing you agree to our <Link href="/terms" className="text-blue-500">Terms of Service</Link> and <Link href="/privacy" className="text-blue-500">Privacy Policy</Link></p>
+              <button type="submit" className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars</button>
           </form> : 
           <>
           <button className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" onClick={() => signIn("google")}>Get Started</button>

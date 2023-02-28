@@ -1,4 +1,4 @@
-import Header from '@/components/header'
+import Link from 'next/link'
 
 export default function Footer() {
   return (
@@ -6,14 +6,13 @@ export default function Footer() {
     <footer className="footer p-10 bg-base-200 text-base-content">
         <div>
             <span className="footer-title">Company</span> 
-            <a className="link link-hover">About us</a> 
-            <a className="link link-hover">Contact</a> 
+            <Link href={"/privacy"} className="link link-hover">Contact</Link> 
         </div> 
         <div>
             <span className="footer-title">Legal</span> 
-            <a className="link link-hover">Terms of use</a> 
-            <a className="link link-hover">Privacy policy</a> 
-            <a className="link link-hover">Cookie policy</a>
+            <Link href={"/terms"} className="link link-hover">Terms of use</Link> 
+            <Link href={"/privacy"} className="link link-hover">Privacy policy</Link> 
+            <Link href={"/cookies"} className="link link-hover">Cookie policy</Link>
         </div>
     </footer> 
     <footer className="footer px-10 py-4 border-t bg-base-200 text-base-content border-base-300">
