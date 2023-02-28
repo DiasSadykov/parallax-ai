@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createJobRecord, JobState } from '@/clients/db';
 import { randomUUID } from 'crypto';
+import getRawBody from "raw-body";
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -23,12 +24,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) =>  {
     let event = req.body;
     if (endpointSecret) {
         const signature = req.headers['stripe-signature'];
+        const rawBody = await getRawBody(req);
         if (!signature) {
             return res.status(400).send(`Webhook Error: Missing signature`);
         }
         try {
             event = stripe.webhooks.constructEvent(
-                req.read(),
+                rawBody,
                 signature,
                 endpointSecret
             );
