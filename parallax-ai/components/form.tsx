@@ -101,7 +101,7 @@ export default function Form() {
             </div>
             <p className="text-md font-semibold self-center">Photos Uploaded</p>
           </div>
-          <button onClick={onSubmit} className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars [FREE FOR BETA TESTERS]</button>
+          <button onClick={onSubmit} className="btn btn-primary border-b-stone-700 mt-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Create Avatars</button>
           </>
           :<progress className="progress progress-primary w-56" value={progress} max="100"></progress> :
       
