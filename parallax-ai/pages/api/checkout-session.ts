@@ -43,7 +43,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             promotion_code: process.env.STRIPE_PROMOTION_CODE,
           }
         ] : undefined,
-        allow_promotion_codes: true,
         mode: 'payment',
         success_url: `${req.headers.origin}/dashboard`,
         cancel_url: `${req.headers.origin}/`,
