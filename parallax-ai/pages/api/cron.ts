@@ -3,7 +3,7 @@
 import { uploadToS3FromUrls } from '@/clients/s3';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getJobRecordByState, JobState, updateJobRecord } from '../../clients/db';
-import { checkModelCreation, checkOutput, createKazakhStyledInference, createModel } from '../../clients/replicateClient';
+import { checkModelCreation, checkOutput, createInferences, createModel } from '../../clients/replicateClient';
 
 
 export default async (_: NextApiRequest, res: NextApiResponse) => {
@@ -27,19 +27,17 @@ export default async (_: NextApiRequest, res: NextApiResponse) => {
         }
     }
 
+    function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+        if (value === null || value === undefined) {
+            console.log("Didn't find value for id")
+        }
+        return value !== null && value !== undefined;
+    }
+
     const modelCreatedJob = await getJobRecordByState(JobState.MODEL_CREATED);
     for (const job of modelCreatedJob) {
-        const inferenceIds = await Promise.all([
-            createKazakhStyledInference(job.modelUrl),
-            createKazakhStyledInference(job.modelUrl),
-            createKazakhStyledInference(job.modelUrl),
-            createKazakhStyledInference(job.modelUrl),
-          ]);
-        for (const id of inferenceIds) {
-            if (id) {
-                job.outputIds = [...(job.outputIds ?? []), id];
-            }
-        }
+        const inferenceIds = await createInferences(job.modelUrl);
+        job.outputIds = inferenceIds.filter(notEmpty);
         job.jobState = JobState.INFERENCING;
         await updateJobRecord(job);
     }
@@ -71,10 +69,3 @@ export default async (_: NextApiRequest, res: NextApiResponse) => {
     }
     res.status(200).json({ pendingJobs, modelCreationJobs, modelCreatedJob, inferencingJobs, message: 'Cron job ran successfully' });
 };
-
-
-
-
-
-
-

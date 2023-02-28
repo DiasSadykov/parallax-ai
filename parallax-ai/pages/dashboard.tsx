@@ -48,12 +48,16 @@ export default function Dashboard() {
                 <li className={"step"+([JobState.COMPLETED, JobState.INFERENCING, JobState.MODEL_CREATED, JobState.MODEL_CREATING].indexOf(job?.jobState)!=-1 ? " step-primary": "") }><b>Creating Model</b></li>
                 <li className={"step"+([JobState.COMPLETED, JobState.INFERENCING].indexOf(job?.jobState)!=-1 ? " step-primary": "") }><b>Creating Avatars</b></li>
                 <li className={"step"+([JobState.COMPLETED].indexOf(job?.jobState)!=-1 ? " step-primary": "") }><b>Finalizing</b></li>
-              </ul>
+              </ul> {job.outputUrls ?             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {job.outputUrls?.map((url) => (
+                  <img key={url} className="rounded-xl" src={url} />
+            ))}
+            </div> :
               <Lottie 
                 animationData={animationData}
                 width={100}
-              />
-            </div> :
+              />}
+            </div> : 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {job.outputUrls?.map((url) => (
                   <img key={url} className="rounded-xl" src={url} />

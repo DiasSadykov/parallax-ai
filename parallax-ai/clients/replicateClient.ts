@@ -1,9 +1,9 @@
 //function createModel to make post request to replicate.com and return job url
 
+import { INFERENCES_REQUESTS } from "./infences";
+
 const MODEL_URL_BASE ="https://api.replicate.com/v1/predictions"
-const KAZAKH_STYLE_LORA = "https://replicate.delivery/pbxt/E1nA6mK2dJ6TC12fPuF3DypSvUXAvpZl03XSoJCTZbJeyFhQA/tmp4dxcmo_rkazakh40gmailcomzip.safetensors";
-const ANIME_CHARACTER_PROMPT = "portrait photo of <1> in style of <2> as anime character,   detailed faces, highres, RAW photo 8k uhd, dslr"
-const ANIME_CHARACTER_PROMPT_2 = "portrait photo of <1> as anime character, hayao miyazaki style, detailed faces, highres, RAW photo 8k uhd, dslr"
+
 const postApiRequest = async (url: string, body: any) => {
     const response = await fetch(url, {
         method: 'POST',
@@ -57,25 +57,35 @@ export const checkOutput = async (id: string | null): Promise<[string | null, st
     return [id, output]
 };
 
-export const createKazakhStyledInference = async (modelUrl: string | null): Promise<string | null>=> {
-    if (!modelUrl) {
-        return null;
-    }
-    const body = {
-        version: "300e401c9899d0ae0312a567a04455e2a8ffd10587e4c583d9ac0f650a7d2f9f",
-        input: {
-            prompt: "portrait photo of <1> in style of <2>, Wes Anderson movie, yurt on a background, detailed faces, highres, RAW photo 8k uhd, dslr",
-            negative_prompt: "cropped, multiple people, poorly drawn face, poorly drawn hands, blurry, mutated",
-            lora_urls: modelUrl + " | " + KAZAKH_STYLE_LORA,
-            lora_scales: "0.5 | 0.5",
-            num_outputs: 4,
-            guidance_scale: 7.5,
-            num_inference_steps: 50,
-            scheduler: "K_EULER_ANCESTRAL",
-            height: 512,
-            width: 512,
-        }
-    };
-    const response = await postApiRequest(MODEL_URL_BASE, body).then((response) => {return response.id}).catch((error) => {console.log(error); return null})
-    return response
+export const createInference = async (body: any): Promise<string | null>=> {
+    const id = await postApiRequest(MODEL_URL_BASE, body).then((response) => {return response.id}).catch((error) => {console.log(error); return null})
+    return id
 };
+
+export const createInferences = async (modelUrl: string | null): Promise<(string | null)[]>=> {
+    const BASE_INFERENCE_INPUT = {
+        num_outputs: 4,
+        guidance_scale: 7.5,
+        num_inference_steps: 50,
+        scheduler: "K_EULER_ANCESTRAL",
+        height: 512,
+        width: 512,
+    };
+    const inferenceIds: (string | null )[] = await Promise.all(INFERENCES_REQUESTS.map(
+        async (inferenceRequest) => {
+            const inferenceInput = {
+                ...BASE_INFERENCE_INPUT,
+                ...inferenceRequest,
+                lora_urls: modelUrl + inferenceRequest.lora_urls,
+            }
+            const inferenceBody = {
+                version: "300e401c9899d0ae0312a567a04455e2a8ffd10587e4c583d9ac0f650a7d2f9f",
+                input: inferenceInput,
+            }
+            const inferenceId = await createInference(inferenceBody);
+            return inferenceId
+        }
+    ));
+    return inferenceIds;
+}
+
