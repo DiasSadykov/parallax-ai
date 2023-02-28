@@ -8,7 +8,7 @@ export default function PrivacyPolicy() {
       <Header />
       <div className="hero min-h-screen bg-base-200">
         <div className="hero-content lg:w-1/3 flex-col ">
-          <h1 className="text-4xl font-extrabold">Cookies Policy</h1>
+          <h1 className="text-4xl font-extrabold">Cookie Policy</h1>
           Our website uses cookies to enable Google OAuth authentication. In this policy, we explain what cookies are, why they are necessary, and how they are used on our website.
           <h1 className="text-xl font-bold"> What are cookies? </h1>
           Cookies are small text files that are stored on a user&apos;s device when they visit a website. They contain information about the user&apos;s visit, including preferences, login details, and browsing history.
