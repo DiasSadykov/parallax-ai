@@ -19,7 +19,7 @@ export default function PictureSelector(){
                     <img src="/landing/andrew.jpg" />
                 </div>
             </div>
-            <div className="carousel rounded-box h-96">
+            <div className="carousel rounded-box">
             <div className="carousel-item">
                 <img src={`/landing/${photo}/1.jpg`}/>
             </div> 
