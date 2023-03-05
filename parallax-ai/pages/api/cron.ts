@@ -6,6 +6,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getJobRecordByState, JobState, updateJobRecord } from '../../clients/db';
 import { checkModelCreation, checkOutput, createInferences, createModel } from '../../clients/replicateClient';
 
+const CHUNK_SIZE = process.env.CHUNK_SIZE ? parseInt(process.env.CHUNK_SIZE) : 3;
 
 export default async (_: NextApiRequest, res: NextApiResponse) => {
     const pendingJobs = await getJobRecordByState(JobState.PENDING);
@@ -50,8 +51,8 @@ export default async (_: NextApiRequest, res: NextApiResponse) => {
 
     for (const job of inferencingJobs) {
         if (job.outputIds) {
-            const newOutputIds = [];
-            const idOutputs = await Promise.all(job.outputIds.map((id) => checkOutput(id)));
+            const newOutputIds = job.outputIds.slice(CHUNK_SIZE);
+            const idOutputs = await Promise.all(job.outputIds.slice(0,CHUNK_SIZE).map((id) => checkOutput(id)));
             for (const idOutput of idOutputs) {
                 const [id, urls] = idOutput;
                 if (!id) {
@@ -59,6 +60,7 @@ export default async (_: NextApiRequest, res: NextApiResponse) => {
                 }
                 if (urls) {
                     job.outputUrls = [...(job.outputUrls ?? []), ...(await uploadToS3FromUrls((job.email + '/' +job.id), urls))];
+                    console.log("Uploaded to s3", job.outputUrls.length)
                 }
                 if (!urls) {
                     newOutputIds.push(id);
