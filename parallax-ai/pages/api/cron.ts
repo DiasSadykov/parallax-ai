@@ -38,9 +38,12 @@ export default async (_: NextApiRequest, res: NextApiResponse) => {
     const modelCreatedJob = await getJobRecordByState(JobState.MODEL_CREATED);
     for (const job of modelCreatedJob) {
         const inferenceIds = await createInferences(job.modelUrl);
-        job.outputIds = inferenceIds.filter(notEmpty);
-        job.jobState = JobState.INFERENCING;
-        await updateJobRecord(job);
+        const inferenceIdsNonEmpty = inferenceIds.filter(notEmpty);
+        if (inferenceIdsNonEmpty.length > 0) {
+            job.outputIds = inferenceIdsNonEmpty;
+            job.jobState = JobState.INFERENCING;
+            await updateJobRecord(job);
+        }
     }
 
     const inferencingJobs = await getJobRecordByState(JobState.INFERENCING);
@@ -70,6 +73,7 @@ export default async (_: NextApiRequest, res: NextApiResponse) => {
     }
 
     const inferencingCompletedJobs = await getJobRecordByState(JobState.INFERENCING_COMPLETED);
+
     for (const job of inferencingCompletedJobs) {
         try{
             await sendAvatars(job.email, job.id);

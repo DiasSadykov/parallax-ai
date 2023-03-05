@@ -79,7 +79,7 @@ export const createInferences = async (modelUrl: string | null): Promise<(string
                 lora_urls: modelUrl + inferenceRequest.lora_urls,
             }
             const inferenceBody = {
-                version: "300e401c9899d0ae0312a567a04455e2a8ffd10587e4c583d9ac0f650a7d2f9f",
+                version: "ab8be1f9d683d40170d571ff8a501dd5ef56eca722ab55e8db15002cc3ae1da2",
                 input: inferenceInput,
             }
             const inferenceId = await createInference(inferenceBody);
