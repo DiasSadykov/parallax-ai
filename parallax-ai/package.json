@@ -22,6 +22,7 @@
     "formidable": "^2.1.1",
     "jszip": "^3.10.1",
     "lottie-react": "^2.4.0",
+    "mailgun-js": "^0.22.0",
     "next": "13.1.6",
     "next-auth": "^4.19.2",
     "raw-body": "^2.5.2",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@types/archiver": "^5.3.1",
     "@types/formidable": "^2.0.5",
+    "@types/mailgun-js": "^0.22.13",
     "@types/uuid": "^9.0.0",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.21",

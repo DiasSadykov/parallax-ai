@@ -1,17 +1,19 @@
 import Footer from '@/components/footer'
-import Form from '@/components/form'
+import Hero from '@/components/hero'
 import Header from '@/components/header'
+import KazakhStyle from '@/components/kazakhStyle'
+import PictureSelector from '@/components/pictureSelector'
+import Steps from '@/components/steps'
 
 export default function Home() {
   return (
     <>
     <Header/>
-    <div className="hero min-h-screen bg-base-200">
-      <div className="hero-content flex-col lg:flex-row">
-        <img src="https://astanatimes.com/wp-content/uploads/2023/01/akshakar-700x691.jpeg" className="max-w-xs md:max-w-sm rounded-lg shadow-2xl" />
-        <Form/>        
-      </div>
-    </div>
+    <Hero/>
+    <PictureSelector/>
+    <div className="divider">ALSO</div>
+    <KazakhStyle/>
+    <Steps/>
     <Footer/>
     </>
     )

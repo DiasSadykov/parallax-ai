@@ -18,12 +18,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const authSession = await getServerSession(req, res, authOptions);
-  if(!authSession) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
   if(!req.body.trainingDataUrl){
     return res.status(400).json({ message: 'No training data' });
   }
+
   if (req.method === 'POST') {
     try {
       // Create Checkout Sessions from body params.
@@ -31,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         metadata: {
           trainingDataUrl: req.body.trainingDataUrl
         },
-        customer_email: authSession.user?.email ?? undefined, 
+        customer_email: authSession?.user?.email ?? undefined, 
         line_items: [
           {
             price: process.env.STRIPE_PRICE_ID,
@@ -44,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         ] : undefined,
         mode: 'payment',
-        success_url: `${req.headers.origin}/dashboard`,
+        success_url: `${req.headers.origin}/success`,
         cancel_url: `${req.headers.origin}/`,
         automatic_tax: {enabled: true},
       });

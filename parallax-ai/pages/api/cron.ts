@@ -1,5 +1,6 @@
 //cron api to fetch data from dynamo db send api request and send email
 
+import { sendAvatars } from '@/clients/emails';
 import { uploadToS3FromUrls } from '@/clients/s3';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getJobRecordByState, JobState, updateJobRecord } from '../../clients/db';
@@ -62,10 +63,22 @@ export default async (_: NextApiRequest, res: NextApiResponse) => {
             }
             job.outputIds = newOutputIds;
             if (job.outputIds.length === 0) {
-                job.jobState = JobState.COMPLETED;
+                job.jobState = JobState.INFERENCING_COMPLETED;
             }
             await updateJobRecord(job);
         }
     }
+
+    const inferencingCompletedJobs = await getJobRecordByState(JobState.INFERENCING_COMPLETED);
+    for (const job of inferencingCompletedJobs) {
+        try{
+            await sendAvatars(job.email, job.id);
+            job.jobState = JobState.FINISHED;
+            await updateJobRecord(job);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     res.status(200).json({ pendingJobs, modelCreationJobs, modelCreatedJob, inferencingJobs, message: 'Cron job ran successfully' });
 };

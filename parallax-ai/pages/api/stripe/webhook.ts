@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { createJobRecord, JobState } from '@/clients/db';
 import { randomUUID } from 'crypto';
 import getRawBody from "raw-body";
+import { sendPaymentSuccessEmail } from '@/clients/emails';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -39,17 +40,19 @@ export default async (req: NextApiRequest, res: NextApiResponse) =>  {
             return res.status(400).send(`Webhook Error: Signature verification failed.`);
         }
     }
-    console.log(event);
+
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object as Stripe.Checkout.Session;
         const trainingDataUrl = session.metadata?.trainingDataUrl;
-        const email = session.customer_email;
+
+        const email = session.customer_details?.email;
         if (!trainingDataUrl || !email) {
             return res.status(400).send(`Webhook Error: Missing training data url or email`);
         };
+
         const jobRecord = await createJobRecord({
             id: randomUUID(),
-            email: email ?? '',
+            email: email,
             jobState: JobState.PENDING,
             trainingDataUrl,
             timestamp: Math.floor(Date.now() / 1000),
@@ -58,6 +61,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) =>  {
             outputIds: null,
             outputUrls: null,
         });
+
+        sendPaymentSuccessEmail(email);
         return res.status(200).json({ message: 'Success', id: jobRecord.id });
     }
 

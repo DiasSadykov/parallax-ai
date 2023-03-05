@@ -44,6 +44,18 @@ export const getJobRecordByEmail = async (email: string) => {
     return await (await dynamoDb.query(params).promise()).Items as JobRecord[];
 };
 
+export const getJobRecordById = async (id: string) => {
+    const params = {
+        TableName: 'parallax-ai-jobs',
+        IndexName: 'id-index',
+        KeyConditionExpression: 'id = :id',
+        ExpressionAttributeValues: {
+            ':id': id,
+        },
+    };
+
+    return await (await dynamoDb.query(params).promise()).Items as JobRecord[];
+};
 
 //function to partially update record in dynamo db
 export const updateJobRecord = async (item: JobRecord) => {
@@ -83,6 +95,7 @@ export interface JobRecord {
       MODEL_CREATING = 'MODEL_CREATING',
       MODEL_CREATED = 'MODEL_CREATED',
       INFERENCING = 'INFERENCING',
-      COMPLETED = 'COMPLETED'
+      INFERENCING_COMPLETED = 'INFERENCING_COMPLETED',
+      FINISHED = 'FINISHED'
   }
   
