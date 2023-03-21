@@ -4,7 +4,7 @@ export default function Hero() {
   return (
       <div className="hero min-h-screen bg-base-200">
       <div className="hero-content flex-col lg:flex-row">
-        <img src="https://astanatimes.com/wp-content/uploads/2023/01/akshakar-700x691.jpeg" className="max-w-xs md:max-w-sm rounded-lg shadow-2xl" />
+        <img src="/landing/landing.jpg" className="max-w-xs md:max-w-sm rounded-lg shadow-2xl" />
         <div className=" flex-col ">
           <div>
             <h1 className="text-6xl md:text-8xl font-bold text-slate-100">Create your own <br/>AI Avatars</h1>
